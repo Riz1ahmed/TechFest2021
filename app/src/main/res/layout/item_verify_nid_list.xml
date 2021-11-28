@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="5dp"
+    android:id="@+id/cardview_pb_cart"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground"
+
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    cardview:cardCornerRadius="4dp"
+    android:focusable="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="0dp"
+        android:background="@color/app_orange20"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/pb_cart_imagec7ard"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="10dp"
+            android:elevation="0dp"
+
+            app:layout_constraintBottom_toTopOf="@+id/post_status_text"
+            cardview:cardCornerRadius="10dp"
+            cardview:layout_constraintStart_toStartOf="parent"
+            cardview:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/post_nid_user_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#222d"
+
+                android:scaleType="centerCrop" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/nid_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="User Name"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            cardview:layout_constraintStart_toEndOf="@+id/pb_cart_imagec7ard"
+            cardview:layout_constraintTop_toTopOf="@+id/pb_cart_imagec7ard" />
+
+        <TextView
+            android:id="@+id/post_address_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New york City, USA"
+            android:textSize="12sp"
+            android:layout_marginTop="2dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@+id/nide_user_time"
+            app:layout_constraintTop_toBottomOf="@+id/nide_user_time" />
+        <TextView
+            android:id="@+id/nide_user_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
+            android:text="12minutes ago"
+            android:textSize="12sp"
+            android:layout_marginTop="1dp"
+            cardview:layout_constraintStart_toStartOf="@+id/nid_user_name"
+            cardview:layout_constraintTop_toBottomOf="@+id/nid_user_name"
+            tools:layout_editor_absoluteY="34dp" />
+
+        <TextView
+            android:id="@+id/post_status_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Here is the front and back pic of NID"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/post_image_slider_cardview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pb_cart_imagec7ard" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/post_image_slider_cardview"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:elevation="0dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/post_image_slider_carrdview"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/post_status_text"
+            cardview:cardCornerRadius="10dp"
+            cardview:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/post_nid_front_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/post_image_slider_carrdview"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="10dp"
+            android:elevation="0dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/nid_approve_btn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/post_image_slider_cardview"
+            cardview:cardCornerRadius="10dp"
+            cardview:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/post_nid_back_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                />
+
+        </androidx.cardview.widget.CardView>
+
+        <Button
+            android:id="@+id/nid_approve_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:text="Approve"
+            android:backgroundTint="@color/app_orange_deep"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/post_image_slider_carrdview" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

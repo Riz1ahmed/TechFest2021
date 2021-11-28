@@ -12,16 +12,19 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,14 +42,12 @@ import com.google.firebase.storage.UploadTask;
 
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
-import java.util.*;
 
 public class ProductUpload extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
@@ -67,7 +68,11 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
     private List<String> dFileDoneList;
     private List<String> dsaPhotoUrlStringList;
     private String dsStatus;
-    private Level_E_Add_PhotosAdapter file_add_list_adapter;  //Errorx
+    private PhotoUploadAdapter file_add_list_adapter;  //Errorx
+
+    private RadioGroup mRadioBoostGroup;
+    private RadioButton mRadioBoostOn, mRadioBoostOff;
+
     //Firebase Storage
     private StorageReference mStorage = FirebaseStorage.getInstance().getReference();
     private StorageReference FileToUpload;
@@ -93,6 +98,10 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
         mStatusPostBtn = (Button) findViewById(R.id.status_post_btn) ;
         mStatusAddPicBtn = (Button) findViewById(R.id.status_add_pic_btn) ;
 
+        mRadioBoostGroup = (RadioGroup) findViewById(R.id.product_boost_group) ;
+        mRadioBoostOn = (RadioButton) findViewById(R.id.product_boost_on) ;
+        mRadioBoostOff = (RadioButton) findViewById(R.id.product_boost_off) ;
+        getIntentMethod();
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() { ///for going to Account Activity Page
             @Override
@@ -118,6 +127,14 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
                 }
             }
         };
+
+        //Spinner
+        //get the spinner from the xml.
+        Spinner dropdown = findViewById(R.id.spinner1);
+        String[] items = new String[]{"List", "2", "three"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+
+        dropdown.setAdapter(adapter);
 
         mExpairDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,8 +174,13 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
                     Toast.makeText(getApplicationContext(),"Fill All Boxes Please",Toast.LENGTH_SHORT).show();
                 }else if(diTotalPhotoAdded == 0 && diStatusTotalChar == 0){
                     Toast.makeText(getApplicationContext(),"Fill up Please",Toast.LENGTH_SHORT).show();
+                }else if(ddDateExpair == null ){
+                    Toast.makeText(getApplicationContext(),"Select Expire Date",Toast.LENGTH_SHORT).show();
+                }else if(dsCategoryName.equals("NO") ){
+                    Toast.makeText(getApplicationContext(),"Select Any Category",Toast.LENGTH_SHORT).show();
                 }else if(diTotalPhotoAdded >= 1 ){
                     UploadToFirebase(dsStatus, dsaPhotoUrlStringList);
+                    mStatusPostBtn.setEnabled(false);
                 }else{
                     Toast.makeText(getApplicationContext(),"Please Fillup Fail",Toast.LENGTH_SHORT).show();
                 }
@@ -177,13 +199,54 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
         dsaPhotoUrlStringList = new ArrayList<>();
         dFileNameList = new ArrayList<>();
         dFileDoneList = new ArrayList<>();
-        file_add_list_adapter = new Level_E_Add_PhotosAdapter(dsaPhotoUrlStringList, dFileNameList,dFileDoneList);
+        file_add_list_adapter = new PhotoUploadAdapter(dsaPhotoUrlStringList, dFileNameList,dFileDoneList);
         mL5A_FilesRecyclerview.setLayoutManager(new GridLayoutManager(getApplicationContext(),2));
         mL5A_FilesRecyclerview.setHasFixedSize(true);
         mL5A_FilesRecyclerview.setAdapter(file_add_list_adapter);
 
 
+
+        //Spinner
+        Spinner staticSpinner = (Spinner) findViewById(R.id.spinner1);
+
+        // Create an ArrayAdapter using the string array and a default spinner
+        ArrayAdapter<CharSequence> staticAdapter = ArrayAdapter
+                .createFromResource(this, R.array.brew_array,
+                        android.R.layout.simple_spinner_item);
+
+        // Specify the layout to use when the list of choices appears
+        staticAdapter
+                .setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Apply the adapter to the spinner
+        staticSpinner.setAdapter(staticAdapter);
+
+        Spinner dynamicSpinner = (Spinner) findViewById(R.id.spinner1);
+
+        String[] itemsd = new String[] { "T-Shirt","Full Shirt","Pant","Shari","Panjabi","Trouser","Baby" };
+
+        ArrayAdapter<String> adaptered = new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item, itemsd);
+
+        dynamicSpinner.setAdapter(adaptered);
+
+        dynamicSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                dsCategoryName = (String) parent.getItemAtPosition(position);
+                Toast.makeText(getApplicationContext(),  " "+ (String) parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                Log.v("item", (String) parent.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // TODO Auto-generated method stub
+            }
+        });
     }
+
+    private String dsCategoryName = "NO";
 
     private void UploadToFirebase(String dsStatus, List<String> dsaPhotoUrlStringList) {
         Toast.makeText(getApplicationContext(), "Uploading Information", Toast.LENGTH_SHORT).show();
@@ -191,6 +254,8 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
         /*final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Uploading...");
         progressDialog.show();*/
+
+
 
 
         FieldValue ddDate = FieldValue.serverTimestamp();
@@ -202,16 +267,20 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
         note.put("PhotoArrayUrl", dsaPhotoUrlStringList);
         note.put("Name", dsProductName);
         note.put("About", dsProductAbout);
-        note.put("TagWords", "Public");
+        note.put("TagWords", dsCategoryName);
         note.put("BidMode", "Enable");
-        note.put("ExtraA", "NO");
+        note.put("ExtraA", dsProductName+ " " + dsProductAbout + " "+dsCategoryName);
         note.put("ExtraB", "NO");
         note.put("dExpairDate", ddDateExpair);  //Date Type
         note.put("dUploadDate", ddDate);
-        note.put("iLowestBidPrice", 0);
-        note.put("iHighestBidPrice", 0);
+        note.put("iLowestBidPrice", Integer.parseInt(dsProductLowestBidingRate));
+        note.put("iHighestBidPrice", Integer.parseInt(dsProductHighestBidding));
         note.put("iTotalBider", 0);
-        note.put("iExtra", 0);
+
+        if(mRadioBoostOn.isChecked()){
+            note.put("iExtra", 1);      //Boost Mode
+        }else
+            note.put("iExtra", 0);      //Boost Mode OFF
 
         //Toast.makeText(getContext(),"Uploading New Item", Toast.LENGTH_SHORT).show();
         db.collection("ProductList").add(note)
@@ -240,7 +309,6 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
         });
 
     }
-
 
     // ProgressDialog progressDialog = new ProgressDialog(ProductUpload.this);
     @Override
@@ -453,9 +521,26 @@ public class ProductUpload extends AppCompatActivity implements DatePickerDialog
         c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         String currentDateString = DateFormat.getDateInstance(DateFormat.FULL).format(c.getTime());
         dExpairDateLong  = c.getTimeInMillis();
-        Date ddDateExpair  = c.getTime();
+        ddDateExpair  = c.getTime();
 
         mExpairDate.setText(currentDateString);
+    }
+
+    private void getIntentMethod() {
+        //////////////GET INTENT DATA
+        final Intent intent = getIntent();
+        if(intent.getExtras() != null)
+        {
+            String userPaidType = intent.getExtras().getString("userPaidType");
+            if(userPaidType.equals("Freemium")){
+                mRadioBoostGroup.setVisibility(View.GONE);
+            }else{
+                mRadioBoostGroup.setVisibility(View.VISIBLE);
+            }
+        }else{
+            Toast.makeText(getApplicationContext(),"Intent null", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override

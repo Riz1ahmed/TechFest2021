@@ -22,8 +22,9 @@ import com.squareup.picasso.Picasso;
 public class LoginProfile extends AppCompatActivity {
 
     private ImageView mUserProfileImage;
-    private TextView mHeadText, mUserNameText, mUserUniversityName, mUserTypeText;
-    private Button mSignOutBtn, mSaleProductBtn;
+    private TextView mHeadText, mUserNameText, mUserUniversityName, mUserTypeText, mUserPoints;
+    private Button mSignOutBtn, mSaleProductBtn, mVerifyBtn,mVerifyListBtn;
+    private Button mGoPremiumBtn, mEditProfileBtn;
 
     //Firebase Auth
     private FirebaseUser user;
@@ -40,9 +41,14 @@ public class LoginProfile extends AppCompatActivity {
         mUserNameText =     (TextView)findViewById(R.id.profile_name_text);
         mUserUniversityName =   (TextView)findViewById(R.id.profile_university_name_text);
         mUserTypeText =     (TextView)findViewById(R.id.profile_user_type_text);
+        mUserPoints =     (TextView)findViewById(R.id.text_points);
 
         mSignOutBtn = (Button)findViewById(R.id.profile_sign_out_btn);
         mSaleProductBtn = (Button)findViewById(R.id.profile_sale_product_btn) ;
+        mVerifyBtn = (Button)findViewById(R.id.profile_verify_btn) ;
+        mVerifyListBtn = (Button)findViewById(R.id.profile_verify_list_btn) ;
+        mGoPremiumBtn = (Button)findViewById(R.id.go_premiumbtn) ;
+        mEditProfileBtn = (Button)findViewById(R.id.go_edit_profile) ;
 
         //Login Check
         mAuth = FirebaseAuth.getInstance();
@@ -52,6 +58,11 @@ public class LoginProfile extends AppCompatActivity {
                 user = firebaseAuth.getCurrentUser();
                 if(user != null){
                     String dsUserName = user.getDisplayName();
+                    if(user.getEmail().equals("u1@gmail.com")){
+                        mVerifyListBtn.setVisibility(View.VISIBLE);
+                    }else{
+                        mVerifyListBtn.setVisibility(View.GONE);
+                    }
                     //mUserNameText.setText(dsUserName);
                     Toast.makeText(getApplicationContext(),"Welcome "+dsUserName, Toast.LENGTH_SHORT).show();;
                     getUserData();
@@ -63,10 +74,28 @@ public class LoginProfile extends AppCompatActivity {
                 }
             }
         };
+        mGoPremiumBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("All_USER").document(dUserUID).update("userPaidType", "Premium");
+                Intent intent = new Intent(LoginProfile.this, APremium.class);
+                startActivity(intent);
+            }
+        });
+        mEditProfileBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(LoginProfile.this, LoginRegistration.class);
+                intent.putExtra("dsEditMode", "ON");
+                startActivity(intent);
+            }
+        });
         mSaleProductBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), ProductUpload.class);
+                intent.putExtra("userPaidType", userPaidType);
                 startActivity(intent);
             }
         });
@@ -74,10 +103,29 @@ public class LoginProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getApplicationContext(), LoginStart.class);
+                startActivity(intent);
             }
         });
+        mVerifyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), VerifyAddPhoto.class);
+                startActivity(intent);
+            }
+        });
+        mVerifyListBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), VerifyNidList.class);
+                startActivity(intent);
+            }
+        });
+        getIntentMethod();
     }
-    private String dUserUID = "NO";
+
+
+    private String dUserUID = "NO",userPaidType = "NO";
     private void getUserData() {
         dUserUID = FirebaseAuth.getInstance().getUid();
         if(dUserUID.equals("")){
@@ -94,12 +142,20 @@ public class LoginProfile extends AppCompatActivity {
                             if(documentSnapshot.exists()){
                                 //Toast.makeText(getApplicationContext(),"User Information Found", Toast.LENGTH_SHORT).show();;
 
-                                String dUserName = documentSnapshot.getString("name");
+                                String dUserName = documentSnapshot.getString("nameFirst");
                                 String dUserPhotoURL = documentSnapshot.getString("photoURL");
                                 String dAddress = documentSnapshot.getString("address");
                                 String dUserType = documentSnapshot.getString("userType");
-                                String userPaidType = documentSnapshot.getString("userPaidType");
+                                userPaidType = documentSnapshot.getString("userPaidType");
+                                String userValidNID = documentSnapshot.getString("userValidNID");
 
+                                if(userValidNID.equals("NO")){
+                                    mSaleProductBtn.setEnabled(false);
+                                    mGoPremiumBtn.setEnabled(false);
+                                }else if(userValidNID.equals("YES")){
+                                    mSaleProductBtn.setEnabled(true);
+                                }
+                                mUserNameText.setText(dUserName);
                                 /*String dUserEmail = documentSnapshot.getString("email");
                                 String dRegTime = documentSnapshot.getString("reg_date");
                                 String UserUID = documentSnapshot.getString("uid");
@@ -109,7 +165,10 @@ public class LoginProfile extends AppCompatActivity {
                                 String dUserType = documentSnapshot.getString("userType");*/
 
                                 long diPoints = documentSnapshot.getLong("diPoint");
-
+                                if(diPoints < 0 ){
+                                    mSaleProductBtn.setEnabled(false);
+                                }
+                                mUserPoints.setText(""+diPoints);
                                 if(!dUserPhotoURL.equals("NO")){
                                     Picasso.get().load(dUserPhotoURL).into(mUserProfileImage);
                                 }else{
@@ -120,8 +179,16 @@ public class LoginProfile extends AppCompatActivity {
                                 }else{
                                     mSaleProductBtn.setVisibility(View.GONE);
                                 }
+                                if(userPaidType.equals("Freemium")){
+
+                                }else{
+                                    mGoPremiumBtn.setText("Premium Subscribed");
+                                    mSaleProductBtn.setText("Sale Product");
+                                    mSaleProductBtn.setEnabled(true);
+                                }
+
                                 mUserTypeText.setText("User Type: "+dUserType);
-                                mUserUniversityName.setText("Address: "+dAddress);
+                                mUserUniversityName.setText(dAddress);
                             }else{
                                 //User has no data saved
                                 Toast.makeText(getApplicationContext(),"User Inforamtion 404", Toast.LENGTH_SHORT).show();;
@@ -134,6 +201,30 @@ public class LoginProfile extends AppCompatActivity {
                     });
         }
     }
+
+    long diProdcutIn30Days = 0;
+    private boolean intentFoundError = true;
+    private void getIntentMethod() {
+        //////////////GET INTENT DATA
+        final Intent intent = getIntent();
+        if(intent.getExtras() != null)
+        {
+            String dsProductIn30Days = intent.getExtras().getString("dsProductIn30Days");
+            diProdcutIn30Days = Integer.parseInt(dsProductIn30Days);
+            if(diProdcutIn30Days < 10){
+
+            }else{
+                mSaleProductBtn.setText("Sale Limit Crossed");
+                mSaleProductBtn.setEnabled(false);
+            }
+            Toast.makeText(getApplicationContext(),"Total Post in 30 Days"+diProdcutIn30Days, Toast.LENGTH_SHORT).show();
+
+        }else{
+            Toast.makeText(getApplicationContext(),"Intent null", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
     @Override
     public void onStart() {
         super.onStart();

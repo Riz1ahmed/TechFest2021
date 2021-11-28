@@ -15,14 +15,14 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class Level_E_Add_PhotosAdapter extends RecyclerView.Adapter<Level_E_Add_PhotosAdapter.FileHolder> {
+public class PhotoUploadAdapter extends RecyclerView.Adapter<PhotoUploadAdapter.FileHolder> {
 
     public List<String> photoUrlList;
     public List<String> fileNameList;
     public List<String> fileDoneList;
     private RecylerviewClickInterface recylerviewClickInterface;
 
-    public Level_E_Add_PhotosAdapter(List<String>photoUrlList, List<String>fileNameList, List<String>fileDoneList){
+    public PhotoUploadAdapter(List<String>photoUrlList, List<String>fileNameList, List<String>fileDoneList){
         this.photoUrlList =photoUrlList;
         this.fileDoneList =fileDoneList;
         this.fileNameList = fileNameList;

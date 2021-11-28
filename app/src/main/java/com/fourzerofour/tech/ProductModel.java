@@ -65,6 +65,10 @@ public class ProductModel {
         return ProductUID;
     }
 
+    public void setProductUID(String productUID) {
+        ProductUID = productUID;
+    }
+
     public String getUidOwner() {
         return UidOwner;
     }

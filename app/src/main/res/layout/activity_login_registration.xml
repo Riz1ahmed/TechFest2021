@@ -83,11 +83,13 @@
                             android:layout_height="wrap_content"
                             android:text="Male"
                             android:layout_marginRight="20dp"/>
-                        <RadioButton android:id="@+id/radio_female"
+
+                        <RadioButton
+                            android:id="@+id/radio_female"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Female"
-                            android:layout_marginLeft="20dp"/>
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="20dp"
+                            android:text="Female" />
                     </RadioGroup>
                 </LinearLayout>
                 <LinearLayout android:layout_width="wrap_content"
@@ -119,8 +121,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="20dp"
                             android:text="Admin"
-                            android:visibility="visible"
-                            tools:visibility="visible" />
+                            android:visibility="gone"/>
 
                     </RadioGroup>
                 </LinearLayout>

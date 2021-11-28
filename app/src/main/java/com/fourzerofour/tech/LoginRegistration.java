@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -184,12 +185,87 @@ public class LoginRegistration extends AppCompatActivity {
                 }
             }
         });
+        getIntentMethod();
+    }
+
+    String dsEditMode = "NO";
+    private void getIntentMethod() {
+        //////////////GET INTENT DATA
+        final Intent intent = getIntent();
+        if(intent.getExtras() != null)
+        {
+            dsEditMode = intent.getExtras().getString("dsEditMode", "OFF");
+            if(dsEditMode.equals("ON")){
+                Toast.makeText(getApplicationContext(),"Edit Mode On", Toast.LENGTH_SHORT).show();;;
+                RetriveUserOldInfo();
+            }else{
+
+            }
+
+
+        }else{
+            dsEditMode = "NO";
+            Toast.makeText(getApplicationContext(),"Intent null", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 
-    String dsEditMode = "NO";
 
     String dRetrivePhotoURL = "NO";
+    private void RetriveUserOldInfo(){
+        Toast.makeText(getApplicationContext(),"Getting User Data", Toast.LENGTH_SHORT).show();
+        getUserData();
+    }
+    private void getUserData() {
+        dUserUID = FirebaseAuth.getInstance().getUid();
+        if(dUserUID.equals("")){
+            Toast.makeText(getApplicationContext(),"Logged in but UID 404", Toast.LENGTH_SHORT).show();;
+        }else{
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("All_USER").document(dUserUID).get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if(documentSnapshot.exists()){
+                                //Toast.makeText(getApplicationContext(),"User Information Found", Toast.LENGTH_SHORT).show();;
+
+                                String dUserNameFirst = documentSnapshot.getString("nameFirst");
+                                String dUserNameLast = documentSnapshot.getString("nameLast");
+                                String dUserPhotoURL = documentSnapshot.getString("photoURL");
+                                String dAddress = documentSnapshot.getString("address");
+                                String dUserType = documentSnapshot.getString("userType");
+                                String dUserPhoneNo = documentSnapshot.getString("phone_no");
+
+                                String userPaidType = documentSnapshot.getString("userType");
+                                mUserInfoName.setText(dUserNameFirst);
+                                mUserInfoNameLast.setText(dUserNameLast);
+                                mUserInfoHomeAddress.setText(dAddress);
+                                mUserInfoPhoneNo.setText(dUserPhoneNo);
+                                if(dUserType.equals("Seller")){
+                                    mRadioTypeUser.setChecked(true);
+                                }
+                                mRadioGenderMale.setChecked(true);
+
+
+
+
+                                if(!dUserPhotoURL.equals("NO")) {
+                                    Picasso.get().load(dUserPhotoURL).into(mUserProfilePic);
+                                }
+
+                            }else{
+                                //User has no data saved
+                                Toast.makeText(getApplicationContext(),"User Inforamtion 404", Toast.LENGTH_SHORT).show();;
+                                Intent intent = new Intent(getApplicationContext(), LoginRegistration.class);
+                                //intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                startActivity(intent);
+                                //finish();
+                            }
+                        }
+                    });
+        }
+    }
     private void RetriveUserOldInformation() {
         /*if(user != null){
             dUserUID = FirebaseAuth.getInstance().getUid();

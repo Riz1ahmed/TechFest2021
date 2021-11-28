@@ -89,8 +89,41 @@
                 android:padding="15dp"
                 android:textColor="@color/black"
                 android:textStyle="normal" />
+            <Spinner
+                android:id="@+id/spinner1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="15dp"
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown"/>
 
+            <LinearLayout android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
 
+                <RadioGroup
+                    android:id="@+id/product_boost_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:orientation="horizontal">
+                    <RadioButton android:id="@+id/product_boost_on"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Boost On"
+                        android:layout_marginRight="20dp"/>
+
+                    <RadioButton
+                        android:id="@+id/product_boost_off"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="20dp"
+                        android:text="Boost Off" />
+                </RadioGroup>
+            </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/level_e_photo_recyclerview"
                 android:layout_width="match_parent"

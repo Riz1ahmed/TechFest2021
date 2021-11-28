@@ -12,6 +12,8 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.denzcoskun.imageslider.ImageSlider;
+import com.denzcoskun.imageslider.constants.ScaleTypes;
+import com.denzcoskun.imageslider.models.SlideModel;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,10 +29,12 @@ public class MainActivityAdapter  extends RecyclerView.Adapter<MainActivityAdapt
     private Context mContext;
     private List<ProductModel> mData;
     private RecylerviewClickInterface recylerviewClickInterface;
-    public MainActivityAdapter (android.content.Context mContext, List<ProductModel> mData, RecylerviewClickInterface recylerviewClickInterface) {
+    String userType;
+    public MainActivityAdapter (android.content.Context mContext, List<ProductModel> mData, RecylerviewClickInterface recylerviewClickInterface, String userType) {
         this.mContext = mContext;
         this.mData = mData;
         this.recylerviewClickInterface = recylerviewClickInterface;
+        this.userType = userType;
     }
 
     @NonNull
@@ -44,12 +48,12 @@ public class MainActivityAdapter  extends RecyclerView.Adapter<MainActivityAdapt
 
     @Override
     public void onBindViewHolder(@NonNull MainActivityAdapter_Holder holder, int position) {
-       // List<String> dPhotoURLArray = new ArrayList<String>();
-        /*List<SlideModel> imageList = new ArrayList<>();
+        List<String> dPhotoURLArray = new ArrayList<String>();
+        List<SlideModel> imageList = new ArrayList<>();
         dPhotoURLArray = mData.get(position).getPhotoArrayUrl();
-        String dsStatus = mData.get(position).getStatus();
+
         //Date Code
-        Date date = mData.get(position).getdDate();
+        Date date = mData.get(position).getdUploadDate();
         SimpleDateFormat df2 = new SimpleDateFormat("hh:mma  dd/MMM/yy");
         String dateText = df2.format(date);
         long diTime = date.getTime();
@@ -64,33 +68,48 @@ public class MainActivityAdapter  extends RecyclerView.Adapter<MainActivityAdapt
             for(int i = 0; i<diPhotoListSize; i++){
                 imageList.add(new SlideModel(dPhotoURLArray.get(i), ScaleTypes.CENTER_INSIDE));
             }
-            holder.mPostItemImageView.setImageList(imageList,ScaleTypes.CENTER_CROP);
+            holder.mPostItemImageView.setImageList(imageList,ScaleTypes.CENTER_INSIDE);
 
         }
-        holder.mPostStatusText.setText(dsStatus);
-        if(dsStatus.equals("NO")){
-            holder.mPostStatusText.setVisibility(View.GONE);
+
+        String dsBidMode = mData.get(position).getBidMode();
+        if(dsBidMode.equals("Enable")){
+            //Hide ALL
+            //holder.setVisibility(View.GONE);
         }
         //mPostItemImageView.setImageList(imageList, ScaleTypes.CENTER_CROP);
         //Picasso.get().load(dPhotoURL).fit().centerCrop().into(holder.mPostItemImageView);
-        String dsAddress = mData.get(position).getAddress();
+        //String dsAddress = mData.get(position).getAd();
 
 
         //holder.mPostItemUserAddress.setText(dsBio);
-        String dUserUID = mData.get(position).getUserUID();
-        getUserData(dUserUID, holder);*/
+        String dPostOwnerUID = mData.get(position).getUidOwner();
+        getUserData(dPostOwnerUID, holder);
+
+
+        holder.mProductAbout.setText(mData.get(position).getAbout());
+        holder.mProductName.setText(mData.get(position).getName());
+        //Extra Time;
+        String dsExtraB = mData.get(position).getExtraB();
+        if(userType.equals("Seller")){
+            holder.mProductTimeExtentImage.setVisibility(View.VISIBLE);
+        }else{
+            holder.mProductTimeExtentImage.setVisibility(View.GONE);
+        }
+
     }
 
     private void getUserData(String dUserUID, MainActivityAdapter_Holder holder) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Reg_USER").document(dUserUID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        db.collection("All_USER").document(dUserUID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 if(documentSnapshot.exists()){
-                    String dsUserName = documentSnapshot.getString("name");
+                    String dsUserNameFirst = documentSnapshot.getString("nameFirst");
+                    String dsUserNameLast = documentSnapshot.getString("nameLast");
                     String dsUserPhotoURl = documentSnapshot.getString("photoURL");
-                    holder.mPostItemUserName.setText(dsUserName);
+                    holder.mPostItemUserName.setText(dsUserNameFirst+" "+dsUserNameLast);
                     Picasso.get().load(dsUserPhotoURl).fit().centerCrop().into(holder.mUserImage);
                 }else{
                     holder.mPostItemUserName.setText("Name 404");
@@ -114,12 +133,15 @@ public class MainActivityAdapter  extends RecyclerView.Adapter<MainActivityAdapt
         TextView mPostItemUserName, mPostStatusText ;
         TextView mPostItemTime,mPostItemUserAddress;
 
+        TextView mProductName, mProductAbout;
+        ImageView mProductTimeExtentImage;
         ImageView mPostLoveIcon;
         TextView mPostLoveCount;
         public MainActivityAdapter_Holder(@NonNull View itemView) {
             super(itemView);
             mSliderCard = (CardView) itemView.findViewById(R.id.post_image_slider_cardview) ;
             mUserImage = (ImageView)itemView.findViewById(R.id.post_user_image) ;
+            mProductTimeExtentImage = (ImageView)itemView.findViewById(R.id.add_time_img_btn) ;
             mPostItemImageView = (ImageSlider) itemView.findViewById(R.id.post_image_slider);
             mPostItemUserName = (TextView)itemView.findViewById(R.id.item_home_user_name);
             mPostStatusText = (TextView)itemView.findViewById(R.id.post_status_text);
@@ -129,31 +151,24 @@ public class MainActivityAdapter  extends RecyclerView.Adapter<MainActivityAdapt
 
             mPostLoveIcon = (ImageView)itemView.findViewById(R.id.post_love_image);
             mPostLoveCount = (TextView)itemView.findViewById(R.id.post_love_count_txt);
+            mProductName = (TextView)itemView.findViewById(R.id.product_name);
+            mProductAbout = (TextView)itemView.findViewById(R.id.product_about);
             mPostItemUserName.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                    // recylerviewClickInterface.onItemClickUserID(getAdapterPosition());
                 }
             });
-            mPostLoveIcon.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //recylerviewClickInterface.onLikeImgCLick(getAdapterPosition());
-
-                    /*if (dLikedPress == false) {
-                        dLikedPress = true;
-                        int dLikeCount = Integer.parseInt(mPostLoveCount.getText().toString());
-                        mPostLoveCount.setText(String.valueOf(dLikeCount + 1));
-                        mPostLoveIcon.setColorFilter(mContext.getResources().getColor(R.color.SweetRed));
-                        mPostLoveCount.setTextColor(mContext.getResources().getColor(R.color.SweetRed));
-                    } else {
-                        dLikedPress = false;
-                        //mCommentLikeImg.getContext().getResources().getColor(R.color.colorPrimaryDarkDEEP);
-                        int dLikeCount = Integer.parseInt(mPostLoveCount.getText().toString());
-                        mPostLoveCount.setText(String.valueOf(dLikeCount - 1));
-                        mPostLoveIcon.setColorFilter(mContext.getResources().getColor(R.color.DarkGray));
-                        mPostLoveCount.setTextColor(mContext.getResources().getColor(R.color.DarkGray));
-                    }*/
+                    recylerviewClickInterface.onItemClick(getAdapterPosition());
+                }
+            });
+            mProductTimeExtentImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    recylerviewClickInterface.onBitNow(getAdapterPosition());
                 }
             });
 
